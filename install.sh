@@ -10,11 +10,12 @@ then
 	rm -rf build sdist *.egg-info
 
 	case "$1" in 
-  	"--edit") # install with --editable mode
+  	"--dev") # install with --editable mode
 		pip3 install -e .
 		;;
-	"--build") # install with build mode
-		python3 setup.py install
+	"--prod") # install with build mode
+		# python3 setup.py install
+		pip3 install .
 		;;
 	*) # incorrenct parameters
 		echo "Sorry, I don't understand given parameters"

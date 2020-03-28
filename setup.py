@@ -28,5 +28,5 @@ setup(name='restro_imagery',
           'Development Status :: 2 - Pre-Alpha',
           'Topic :: Software Development :: Build Tools'
       ],
-      entry_points={'console_scripts': ['rim = tools.__main__:main']},
+      entry_points={'console_scripts': ['rim = rim.tools.main:main']},
       python_requires='>=3.6')

@@ -5,6 +5,7 @@ from shapely.geometry import box
 from pyproj import CRS
 import geopandas as gpd
 from rasterio.features import rasterize
+from rim.utils import imageUtils 
 
 
 def add_parser(subparser):
@@ -49,7 +50,7 @@ def rasterize(args, stride=None):
 	"""
     scene_labels_gdf = gpd.read_file(args.geojson)
 
-    img_list = [i for i in get_image_chunks(args.tif, window_size=args.size)]
+    img_list = [i for i in imageUtils.get_image_chunks(args.tif, window_size=args.size)]
 
     for index, each in enumerate(img_list[:20]):
         # for win, arr in get_image_chunks(rst, window_size=(win_sz, win_sz)):
