@@ -1,6 +1,8 @@
 import numpy as np
 import collections
 from rasterio.features import rasterize
+import rasterio
+from rasterio.windows import Window
 
 
 # frame: (2353, 5674) image frame size (h, w)
