@@ -3,17 +3,17 @@
 # 1. install .deb dependecny
 
 # download c-library
-apt-get download python3-rtree
+apt-get install python3-rtree
 
-# extract 
-dpkg -x *.deb .pkg/
+# # extract 
+# dpkg -x *.deb .pkg/
 
-# get python site-package path
-site_pkg_path=`python -c "import setuptools as st; print(st.__path__[0] + '/..')"`
+# # get python site-package path
+# site_pkg_path=`python -c "import setuptools as st; print(st.__path__[0] + '/..')"`
 
-rsync -av .pkg/usr/lib/python3/dist-packages/* $site_pkg_path/
-# rm -rf /source/
-rm -rf *.deb .pkg
+# rsync -av .pkg/usr/lib/python3/dist-packages/* $site_pkg_path/
+# # rm -rf /source/
+# rm -rf *.deb .pkg
 
 
 # 2. install setup

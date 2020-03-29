@@ -66,11 +66,11 @@ def get_image_chunks(tif, window_size, stride=None, img_count=None):
         window = Window(frame.x, frame.y, frame.width, frame.height)
         res_img_arr = rst.read(window=window)
 
-        if not img_count:
+        if img_count and img_count < 1:
             return None
 
         if not is_full_white_image(res_img_arr):
-            img_count -= 1
+            img_count = img_count - 1 if img_count else None
             yield window, res_img_arr
 
 

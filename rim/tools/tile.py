@@ -7,6 +7,7 @@ import geopandas as gpd
 from rasterio.features import rasterize
 from rim.utils import imageUtils
 import rasterio
+from PIL import Image
 
 
 
@@ -26,16 +27,20 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 
 	# read geojson
 	scene_labels_gdf = gpd.read_file(geojson)
+	# print('scene_labels_gdf: ', scene_labels_gdf)
 
-	img_list = [i for i in imageUtils.get_image_chunks(tif, window_size=size, img_count=1)]
+	img_list = [i for i in imageUtils.get_image_chunks(tif, window_size=size)]
 
-	# print(img_list)
+
+	print(img_list)
 	for index, each in enumerate(img_list[:20]):
 
 		# print(each)
 		# for win, arr in get_image_chunks(rst, window_size=(win_sz, win_sz)):
 		img_window, img_arr = each[0], each[1]
 
+		# print(img_window)
+		# print(img_arr)
 		# 'miny', 'maxx', and 'maxy'
 		# (807592.8560103609, 620885.095643373, 807611.1959577247, 620903.4357975163)
 		bounds = rasterio.windows.bounds(img_window, rst.meta['transform'])
@@ -50,7 +55,7 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 							 how='inner',
 							 op='intersects')
 
-		# print(gdf_chip.empty)
+		print(gdf_chip.empty)
 		if not gdf_chip.empty:
 			burn_val = 255
 			shapes = [(geom, burn_val) for geom in gdf_chip.geometry]
@@ -62,16 +67,21 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 			fig = plt.figure()
 
 			win_arr = np.moveaxis(img_arr, 0, 2)
-			ax1 = fig.add_subplot(1, 2, 1)
-			ax1.imshow(win_arr)
+			img = Image.fromarray(win_arr, 'RGB')
+			img.save('rgb.png')
 
-			ax2 = fig.add_subplot(1, 2, 2)
-			ax2.imshow(win_arr)
+			img = Image.fromarray(label_arr, 'L')
+			img.save('bw.png')
+			# ax1 = fig.add_subplot(1, 2, 1)
+			# ax1.imshow(win_arr)
 
-			ax1 = fig.add_subplot(1, 2, 2)
-			ax1.imshow(label_arr, alpha=0.5)
+			# ax2 = fig.add_subplot(1, 2, 2)
+			# ax2.imshow(win_arr)
 
-			print(label_arr)
+			# ax1 = fig.add_subplot(1, 2, 2)
+			# ax1.imshow(label_arr, alpha=0.5)
+
+			print('label_arr: ', label_arr)
 			break
 
 
