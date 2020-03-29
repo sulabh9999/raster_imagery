@@ -5,15 +5,14 @@
 # download c-library
 apt-get download python3-rtree
 
-# mv *.deb .pkg/
 # extract 
 dpkg -x *.deb .pkg/
 
-# # get python site-package path
-site_pkg_path=`python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])'`
+# get python site-package path
+site_pkg_path=`python -c "import setuptools as st; print(st.__path__[0] + '/..')"`
 
-# #copy c-lib to site-package path
-mv .pkg/usr/lib/python3/dist-packages/* $site_pkg_path/
+rsync -av .pkg/usr/lib/python3/dist-packages/* $site_pkg_path/
+# rm -rf /source/
 rm -rf *.deb .pkg
 
 
