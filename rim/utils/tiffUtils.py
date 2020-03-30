@@ -1,4 +1,6 @@
-def save_geochip_as_tif(arr,
+import rasterio
+
+def save_as_tif(arr,
                         chip_tfm,
                         name='test',
                         crs='EPSG:4326',
