@@ -5,9 +5,10 @@ from shapely.geometry import box
 from pyproj import CRS
 import geopandas as gpd
 from rasterio.features import rasterize
-from rim.utils import imageUtils
+from rim.utils import (imageUtils, tiffUtils)
 import rasterio
 from PIL import Image
+import numpy as np
 
 
 
@@ -27,20 +28,16 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 
 	# read geojson
 	scene_labels_gdf = gpd.read_file(geojson)
-	# print('scene_labels_gdf: ', scene_labels_gdf)
 
-	img_list = [i for i in imageUtils.get_image_chunks(tif, window_size=size)]
+	# get image from sliding window
+	img_list = [i for i in imageUtils.get_image_chunks(tif, window_size=size, count=15)]
 
 
-	print(img_list)
-	for index, each in enumerate(img_list[:20]):
+	for index, each in enumerate(img_list):
 
-		# print(each)
 		# for win, arr in get_image_chunks(rst, window_size=(win_sz, win_sz)):
 		img_window, img_arr = each[0], each[1]
 
-		# print(img_window)
-		# print(img_arr)
 		# 'miny', 'maxx', and 'maxy'
 		# (807592.8560103609, 620885.095643373, 807611.1959577247, 620903.4357975163)
 		bounds = rasterio.windows.bounds(img_window, rst.meta['transform'])
@@ -50,39 +47,39 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 		win_box_gdf = gpd.GeoDataFrame(geometry=[win_box], crs=rst.meta['crs'])
 		win_box_gdf = win_box_gdf.to_crs(CRS.from_epsg(4326))
 
+		# get chip from geopanda and bouning boxes with csr: 4326(Marcater)
 		gdf_chip = gpd.sjoin(scene_labels_gdf,
 							 win_box_gdf,
 							 how='inner',
 							 op='intersects')
 
-		print(gdf_chip.empty)
+		# check if chip has data
 		if not gdf_chip.empty:
 			burn_val = 255
 			shapes = [(geom, burn_val) for geom in gdf_chip.geometry]
 
+			# transform
 			chip_tfm = rasterio.transform.from_bounds(
-				*win_box_gdf.bounds.values[0], win_sz, win_sz)
-			label_arr = rasterize(shapes, (win_sz, win_sz), transform=chip_tfm)
+				*win_box_gdf.bounds.values[0], *size)
+			label_arr = rasterio.features.rasterize(shapes, out_shape=size, transform=chip_tfm)
+			
+			out_tif = os.path.join(out, 'tif') # make tif dir
+			out_mask = os.path.join(out, 'mask') # make mask dir
 
-			fig = plt.figure()
+			os.makedirs(out_tif, exist_ok=True)
+			os.makedirs(out_mask, exist_ok=True)
 
+			img_tif_name = os.path.join(out, str(index)) # make tif dir
+			img_mask_name = os.path.join(out, str(index)) # make mask dir
+
+			# change dimension of chip image to save as tif
 			win_arr = np.moveaxis(img_arr, 0, 2)
-			img = Image.fromarray(win_arr, 'RGB')
-			img.save('rgb.png')
+			tiffUtils.save_as_tif(win_arr, chip_tfm=chip_tfm, name=img_tif_name)
 
-			img = Image.fromarray(label_arr, 'L')
-			img.save('bw.png')
-			# ax1 = fig.add_subplot(1, 2, 1)
-			# ax1.imshow(win_arr)
-
-			# ax2 = fig.add_subplot(1, 2, 2)
-			# ax2.imshow(win_arr)
-
-			# ax1 = fig.add_subplot(1, 2, 2)
-			# ax1.imshow(label_arr, alpha=0.5)
-
-			print('label_arr: ', label_arr)
+			# save mask image as png
+			imageUtils.save_as_png(label_arr, img_mask_name)
 			break
+			
 
 
 def __validation(tif, geojson, out, size, stride):
