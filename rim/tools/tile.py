@@ -30,7 +30,7 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 	scene_labels_gdf = gpd.read_file(geojson)
 
 	# get image from sliding window
-	img_list = [i for i in imageUtils.get_image_chunks(tif, window_size=size, count=15)]
+	img_list = [i for i in imageUtils.get_image_chunks(tif, window_size=size)]
 
 
 	for index, each in enumerate(img_list):
@@ -69,8 +69,8 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 			os.makedirs(out_tif, exist_ok=True)
 			os.makedirs(out_mask, exist_ok=True)
 
-			img_tif_name = os.path.join(out, str(index)) # make tif dir
-			img_mask_name = os.path.join(out, str(index)) # make mask dir
+			img_tif_name = os.path.join(out_tif, str(index)) # make tif dir
+			img_mask_name = os.path.join(out_mask, str(index)) # make mask dir
 
 			# change dimension of chip image to save as tif
 			win_arr = np.moveaxis(img_arr, 0, 2)
@@ -78,7 +78,6 @@ def rasterize(tif, geojson, out, size=None, stride=None):
 
 			# save mask image as png
 			imageUtils.save_as_png(label_arr, img_mask_name)
-			break
 			
 
 
