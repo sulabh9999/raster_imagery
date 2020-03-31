@@ -1,3 +1,4 @@
+
 import argparse
 import sys
 import os
@@ -20,7 +21,8 @@ def main():
         description='rastering satellite image and mask it with geojson')
     subparser = parser.add_subparsers(title="rim_tools")
 
-    module = import_module(tool_name, package='rim.tools')
+    # module = __import__(f'rim.tools.{tool_name}')
+    module = import_module(f'rim.tools.{tool_name}')
     module.add_parser(subparser)
 
 

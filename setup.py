@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='restro_imagery',
-      version='0.1',
+      version='1.0',
       description='Get all info of image in both command line and python API',
       license='MIT',
       author='Sulabh Shukla',

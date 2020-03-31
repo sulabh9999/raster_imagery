@@ -1,10 +1,7 @@
 import rasterio
 
-def save_as_tif(arr,
-                        chip_tfm,
-                        name='test',
-                        crs='EPSG:4326',
-                        dtype='uint8'):
+
+def save_as_tif(arr, chip_tfm, name='test', crs='EPSG:4326', dtype='uint8'):
     im = (arr).astype(dtype)
 
     # check im shape, number of channels and expand into (H,W,C) if needed
